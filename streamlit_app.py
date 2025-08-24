@@ -406,7 +406,7 @@ html, body, [class*="css"] {
 # ヘッダー
 st.markdown("""
 <div class="header-container fade-in">
-    <div class="app-title">TAMA CONNECT</div>
+    <div class="app-title">アニマル縁結び</div>
     <div class="app-subtitle">多摩地域で素敵な出会いを見つけよう</div>
     <div class="tama-badge">🌸 TOKYO TAMA AREA 🌸</div>
 </div>
