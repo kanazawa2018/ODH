@@ -10,8 +10,8 @@ from typing import Dict, List, Tuple
 # --- 定数定義 ---
 USER_DATA_FILE = '/tmp/users.csv'
 CHAR_INFO_FILE = '/tmp/キャラ情報.csv'
-ROUTE_DATA_FILE = '/tmp/input/周遊ルート.csv'
-CHAR_IMAGE_DIR = '/tmp/input/キャラ画像'
+ROUTE_DATA_FILE = '/tmp/周遊ルート.csv'
+CHAR_IMAGE_DIR = '/tmp/キャラ画像'
 EVENT_DATA_FILE = '/tmp/tama_events.json'  # 多摩地域イベント情報
 
 # --- カラーパレット（東京都×若者向けデザイン） ---
