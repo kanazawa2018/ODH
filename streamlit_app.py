@@ -1017,82 +1017,82 @@ def main():
                         
                         with st.expander(f"**📍 グループ {group_id}** - {len(group_members)}名 - {route_name}", expanded=False):
                         # メンバー表示
-                        st.markdown("### 👥 メンバー")
-                        for _, member in group_members.iterrows():
-                            animal_emoji = get_animal_emoji(member['animal'])
-                            st.markdown(f"""
-                            <div class="member-card">
-                                <span class="member-animal">{animal_emoji}</span>
-                                <div>
-                                    <strong>{member['name']}</strong> ({member['gender']}, {member['age_group']})<br>
-                                    <small>キャラクター: {member['animal']}</small><br>
-                                    <small>趣味: {member['hobbies']}</small>
+                            st.markdown("### 👥 メンバー")
+                            for _, member in group_members.iterrows():
+                                animal_emoji = get_animal_emoji(member['animal'])
+                                st.markdown(f"""
+                                <div class="member-card">
+                                    <span class="member-animal">{animal_emoji}</span>
+                                    <div>
+                                        <strong>{member['name']}</strong> ({member['gender']}, {member['age_group']})<br>
+                                        <small>キャラクター: {member['animal']}</small><br>
+                                        <small>趣味: {member['hobbies']}</small>
+                                    </div>
                                 </div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        
-                        # ルート情報表示
-                        st.markdown("### 🗺️ 周遊プラン")
-                        assigned_route_no = group_members['route_no'].iloc[0]
-                        
-                        # ルート番号を整数に変換（エラーハンドリング付き）
-                        try:
-                            if pd.isna(assigned_route_no):
+                                """, unsafe_allow_html=True)
+                            
+                            # ルート情報表示
+                            st.markdown("### 🗺️ 周遊プラン")
+                            assigned_route_no = group_members['route_no'].iloc[0]
+                            
+                            # ルート番号を整数に変換（エラーハンドリング付き）
+                            try:
+                                if pd.isna(assigned_route_no):
+                                    assigned_route_no = 1
+                                else:
+                                    assigned_route_no = int(float(assigned_route_no))
+                            except (ValueError, TypeError):
                                 assigned_route_no = 1
+                            
+                            # 周遊ルートNo.カラムの型を統一
+                            routes_df_copy = routes_df.copy()
+                            routes_df_copy['周遊ルートNo.'] = pd.to_numeric(routes_df_copy['周遊ルートNo.'], errors='coerce')
+                            
+                            # ルート情報を取得
+                            route_info = routes_df_copy[routes_df_copy['周遊ルートNo.'] == assigned_route_no]
+                            
+                            if not route_info.empty:
+                                route_details = route_info.iloc[0]
+                                
+                                # 各フィールドの存在チェック
+                                course_name = route_details.get('コース名', '名称不明')
+                                duration = route_details.get('所要時間', '未定')
+                                price = route_details.get('参加費', '未定')
+                                start_time = route_details.get('時間', '未定')
+                                schedule = route_details.get('行程・内容', '詳細未定')
+                                point = route_details.get('交流ポイント', '楽しく交流しましょう')
+                                transport = route_details.get('交通・費用', '詳細はお問い合わせください')
+                                
+                                st.markdown(f"""
+                                <div class="route-card">
+                                    <div class="route-header">
+                                        <span class="route-title">📋 {course_name}</span>
+                                    </div>
+                                    <div class="route-details">
+                                        <div class="route-detail-item">
+                                            <strong>⏱️ 所要時間</strong><br>
+                                            {duration}
+                                        </div>
+                                        <div class="route-detail-item">
+                                            <strong>💰 参加費</strong><br>
+                                            {price}
+                                        </div>
+                                        <div class="route-detail-item">
+                                            <strong>🕐 開始時間</strong><br>
+                                            {start_time}
+                                        </div>
+                                    </div>
+                                    <div style="margin-top: 1rem;">
+                                        <p><strong>📍 行程:</strong> {schedule}</p>
+                                        <p><strong>💕 交流ポイント:</strong> {point}</p>
+                                        <p><small>※ {transport}</small></p>
+                                    </div>
+                                </div>
+                                """, unsafe_allow_html=True)
                             else:
-                                assigned_route_no = int(float(assigned_route_no))
-                        except (ValueError, TypeError):
-                            assigned_route_no = 1
-                        
-                        # 周遊ルートNo.カラムの型を統一
-                        routes_df_copy = routes_df.copy()
-                        routes_df_copy['周遊ルートNo.'] = pd.to_numeric(routes_df_copy['周遊ルートNo.'], errors='coerce')
-                        
-                        # ルート情報を取得
-                        route_info = routes_df_copy[routes_df_copy['周遊ルートNo.'] == assigned_route_no]
-                        
-                        if not route_info.empty:
-                            route_details = route_info.iloc[0]
-                            
-                            # 各フィールドの存在チェック
-                            course_name = route_details.get('コース名', '名称不明')
-                            duration = route_details.get('所要時間', '未定')
-                            price = route_details.get('参加費', '未定')
-                            start_time = route_details.get('時間', '未定')
-                            schedule = route_details.get('行程・内容', '詳細未定')
-                            point = route_details.get('交流ポイント', '楽しく交流しましょう')
-                            transport = route_details.get('交通・費用', '詳細はお問い合わせください')
-                            
-                            st.markdown(f"""
-                            <div class="route-card">
-                                <div class="route-header">
-                                    <span class="route-title">📋 {course_name}</span>
-                                </div>
-                                <div class="route-details">
-                                    <div class="route-detail-item">
-                                        <strong>⏱️ 所要時間</strong><br>
-                                        {duration}
-                                    </div>
-                                    <div class="route-detail-item">
-                                        <strong>💰 参加費</strong><br>
-                                        {price}
-                                    </div>
-                                    <div class="route-detail-item">
-                                        <strong>🕐 開始時間</strong><br>
-                                        {start_time}
-                                    </div>
-                                </div>
-                                <div style="margin-top: 1rem;">
-                                    <p><strong>📍 行程:</strong> {schedule}</p>
-                                    <p><strong>💕 交流ポイント:</strong> {point}</p>
-                                    <p><small>※ {transport}</small></p>
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        else:
-                            st.warning(f"ルートNo.{assigned_route_no} の詳細が見つかりません。")
-            else:
-                st.info("📝 まだグループが編成されていません。参加者登録後、グループ編成ボタンを押してください。")
+                                st.warning(f"ルートNo.{assigned_route_no} の詳細が見つかりません。")
+                else:
+                    st.info("📝 まだグループが編成されていません。参加者登録後、グループ編成ボタンを押してください。")
         
         except FileNotFoundError:
             st.warning("⚠️ データファイルが見つかりません。「事前登録」タブから始めてください。")
