@@ -89,81 +89,372 @@ def get_assistant_response(user_input):
 
 # --- Streamlit アプリ本体 ---
 setup_files()
-st.title('アニマル縁結び')
 
-# アイコンとチャット表示用のCSS
+# ページ設定とカスタムCSS
+st.set_page_config(
+    page_title="TAMA CONNECT - 多摩地域街コンアプリ", 
+    page_icon="💕",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# モダンなカスタムCSS
 st.markdown("""
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+
+/* 全体のフォント設定 */
+html, body, [class*="css"] {
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* メインコンテナ */
+.main {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+/* ヘッダースタイル */
+.header-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 1rem 0 2rem 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    text-align: center;
+}
+
+.app-title {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.app-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.tama-badge {
+    display: inline-block;
+    background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+/* タブスタイル */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.stTabs [data-baseweb="tab"] {
+    height: 60px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0 2rem;
+    transition: all 0.3s ease;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* カードスタイル */
+.card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(31, 38, 135, 0.5);
+}
+
+/* フォームスタイル */
+.stSelectbox > div > div {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.stTextInput > div > div > input {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    font-weight: 500;
+}
+
+.stMultiSelect > div > div {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 12px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+/* ボタンスタイル */
+.stButton > button {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+/* エクスパンダースタイル */
+.streamlit-expanderHeader {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.streamlit-expanderContent {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 0 0 12px 12px;
+    padding: 1.5rem;
+}
+
+/* メトリクススタイル */
+.metric-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* チャットスタイル */
+.chat-container {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 1rem 0;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+}
+
 .chat-row {
     display: flex;
     align-items: flex-start;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    animation: fadeInUp 0.5s ease;
 }
+
 .avatar-container {
-    width: 8rem;
+    width: 80px;
     flex-shrink: 0;
     text-align: center;
     margin-right: 1rem;
 }
+
 .avatar-container img {
-    width: 8rem;
-    height: 8rem;
-    border-radius: 10px;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
+
 .avatar-container .char-name {
-    font-weight: bold;
+    font-weight: 600;
     margin-top: 0.5rem;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    color: #667eea;
 }
+
 .message-bubble {
-    padding: 1rem;
-    border-radius: 10px;
-    background-color: #f0f2f6;
-    word-wrap: break-word;
-    width: 100%;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8efff 100%);
+    padding: 1.5rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 70%;
 }
+
+.user-message {
+    justify-content: flex-end;
+}
+
 .user-message .message-bubble {
-    background-color: #dcf8c6;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-right: 1rem;
 }
+
 .user-message .avatar-container {
     margin-left: 1rem;
     margin-right: 0;
 }
-.user-message {
-    justify-content: flex-end;
+
+/* アニメーション */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeInUp 0.6s ease;
+}
+
+/* 成功・エラーメッセージのカスタマイズ */
+.stSuccess {
+    background: linear-gradient(45deg, #4ECDC4, #44A08D);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+.stError {
+    background: linear-gradient(45deg, #FF6B6B, #FF8E8E);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+.stInfo {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+.stWarning {
+    background: linear-gradient(45deg, #FFA726, #FFB74D);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    font-weight: 500;
+}
+
+/* データフレームスタイル */
+.dataframe {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+}
+
+/* アイコンスタイル */
+.icon-large {
+    font-size: 4rem;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 </style>
 """, unsafe_allow_html=True)
 
+# ヘッダー
+st.markdown("""
+<div class="header-container fade-in">
+    <div class="app-title">TAMA CONNECT</div>
+    <div class="app-subtitle">多摩地域で素敵な出会いを見つけよう</div>
+    <div class="tama-badge">🌸 TOKYO TAMA AREA 🌸</div>
+</div>
+""", unsafe_allow_html=True)
+
 tab1, tab2, tab3 = st.tabs([
-    "Step.1: 事前登録",
-    "Step.2: グループ編成・ルート確認",
-    "Step.3: 当日用チャット"
+    "🌟 事前登録",
+    "👥 グループ編成・ルート確認", 
+    "💬 当日用チャット"
 ])
 
 # --- Tab1: 事前登録 ---
 with tab1:
-    st.header("ユーザー情報登録")
+    st.markdown('<div class="card fade-in">', unsafe_allow_html=True)
+    st.markdown("## 🌟 ユーザー情報登録")
+    st.markdown("**多摩地域での素敵な街コンに参加しませんか？あなたの情報を教えてください！**")
+    
     gender_options = ['男性', '女性']
     age_options = ['20代前半', '20代後半', '30代前半', '30代後半', '40代', '50代']
     hobby_options = [
         'アウトドア', 'スポーツ', '旅行', 'キャンプ', '読書', '映画鑑賞', 'ゲーム',
         '料理', '美術館巡り', '音楽鑑賞', 'カメラ', '歴史探訪'
     ]
+    
     with st.form("registration_form"):
-        st.subheader("あなたの情報を入力してください")
-        name = st.text_input("ニックネーム")
-        gender = st.selectbox("性別", gender_options)
-        age_group = st.selectbox("年代", age_options)
-        hobbies = st.multiselect("趣味（複数選択可）", hobby_options)
-        st.subheader("お相手に求める条件")
-        pref_age_group = st.multiselect("希望する年代", age_options)
-        pref_hobbies = st.multiselect("希望する趣味", hobby_options)
-        submitted = st.form_submit_button("登録する")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("### 🎯 あなたの情報")
+            name = st.text_input("ニックネーム", placeholder="例：タロウ")
+            gender = st.selectbox("性別", gender_options)
+            age_group = st.selectbox("年代", age_options)
+            hobbies = st.multiselect("趣味（複数選択可）", hobby_options)
+        
+        with col2:
+            st.markdown("### 💕 お相手への希望")
+            pref_age_group = st.multiselect("希望する年代", age_options)
+            pref_hobbies = st.multiselect("希望する趣味", hobby_options)
+            st.markdown("**※空欄でもOKです**")
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        submitted = st.form_submit_button("✨ 登録して動物キャラを決める！", use_container_width=True)
 
     if submitted:
-        if not name: st.error("ニックネームを入力してください。")
-        elif not hobbies: st.error("趣味を1つ以上選択してください。")
+        if not name: 
+            st.error("ニックネームを入力してください。")
+        elif not hobbies: 
+            st.error("趣味を1つ以上選択してください。")
         else:
             try:
                 char_df = pd.read_csv(CHAR_INFO_FILE)
@@ -176,20 +467,38 @@ with tab1:
 
             # 修正点: 趣味(hobbies)を渡さず、ランダムに動物を割り当てる
             animal = assign_animal(char_df)
-            new_user = pd.DataFrame([{'name': name, 'gender': gender, 'age_group': age_group, 'hobbies': ", ".join(hobbies), 'pref_age_group': ", ".join(pref_age_group), 'pref_hobbies': ", ".join(pref_hobbies), 'animal': animal, 'group_id': 0, 'route_no': 0}])
+            new_user = pd.DataFrame([{
+                'name': name, 
+                'gender': gender, 
+                'age_group': age_group, 
+                'hobbies': ", ".join(hobbies), 
+                'pref_age_group': ", ".join(pref_age_group), 
+                'pref_hobbies': ", ".join(pref_hobbies), 
+                'animal': animal, 
+                'group_id': 0, 
+                'route_no': 0
+            }])
+            
             users_df = pd.read_csv(USER_DATA_FILE)
-            if name in users_df['name'].values: st.error("そのニックネームは既に使用されています。")
+            if name in users_df['name'].values: 
+                st.error("そのニックネームは既に使用されています。")
             else:
                 updated_users_df = pd.concat([users_df, new_user], ignore_index=True)
                 updated_users_df.to_csv(USER_DATA_FILE, index=False)
-                st.success(f"{name}さん、登録が完了しました！")
-                st.info(f"あなたの動物キャラクターは「{animal}」です！")
+                
+                st.success(f"🎉 {name}さん、登録が完了しました！")
+                st.info(f"✨ あなたの動物キャラクターは「**{animal}**」です！")
+                st.balloons()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Tab2: グループ編成・ルート確認 ---
 with tab2:
-    st.header("グループと周遊ルートの確認")
-    st.info("参加者全員が登録を終えたら、代表者が一度だけこのボタンを押してください。")
-    if st.button("最新の参加者でグループとルートを編成する"):
+    st.markdown('<div class="card fade-in">', unsafe_allow_html=True)
+    st.markdown("## 👥 グループと周遊ルートの確認")
+    st.info("🌟 参加者全員が登録を終えたら、代表者が一度だけこのボタンを押してください。")
+    
+    if st.button("🚀 最新の参加者でグループとルートを編成する", use_container_width=True):
         users_df = pd.read_csv(USER_DATA_FILE)
 
         try:
@@ -206,38 +515,51 @@ with tab2:
             users_with_groups_df = assign_groups_and_routes(users_df, routes_df)
             users_with_groups_df.to_csv(USER_DATA_FILE, index=False)
 
-            st.success("グループ編成と周遊ルートの作成が完了しました！")
+            st.success("🎉 グループ編成と周遊ルートの作成が完了しました！")
+            st.balloons()
 
             num_groups = int(users_with_groups_df['group_id'].max())
+            
             for group_id in range(1, num_groups + 1):
-                with st.expander(f"**グループ {group_id}**"):
-                    st.subheader("メンバー")
-                    group_members = users_with_groups_df[users_with_groups_df['group_id'] == group_id]
-                    for _, row in group_members.iterrows():
-                        st.write(f"- {row['name']} ({row['gender']}, {row['age_group']}) - **{row['animal']}**")
+                with st.expander(f"🌟 **グループ {group_id}**", expanded=True):
+                    col1, col2 = st.columns([1, 2])
+                    
+                    with col1:
+                        st.markdown("#### 👫 メンバー")
+                        group_members = users_with_groups_df[users_with_groups_df['group_id'] == group_id]
+                        for _, row in group_members.iterrows():
+                            st.markdown(f"**{row['name']}** ({row['gender']}, {row['age_group']}) - 🐾 **{row['animal']}**")
 
-                    st.subheader("周遊プラン")
-                    assigned_route_no = group_members['route_no'].iloc[0]
-                    route_info = routes_df[routes_df['周遊ルートNo.'] == assigned_route_no]
+                    with col2:
+                        st.markdown("#### 🗺️ 周遊プラン")
+                        assigned_route_no = group_members['route_no'].iloc[0]
+                        route_info = routes_df[routes_df['周遊ルートNo.'] == assigned_route_no]
 
-                    if not route_info.empty:
-                        header_info = route_info.iloc[0]
-                        st.write(f"**ルートNo:** {int(header_info['周遊ルートNo.'])}　**コース名:** {header_info['コース名']}")
-                        col1, col2 = st.columns(2)
-                        col1.metric("予想所要時間", header_info['所要時間'])
-                        col2.metric("参加費目安", header_info['参加費'])
+                        if not route_info.empty:
+                            header_info = route_info.iloc[0]
+                            st.markdown(f"**ルートNo:** {int(header_info['周遊ルートNo.'])}　**コース名:** {header_info['コース名']}")
+                            
+                            metric_col1, metric_col2 = st.columns(2)
+                            with metric_col1:
+                                st.markdown(f'<div class="metric-card">⏰ 所要時間<br><strong>{header_info["所要時間"]}</strong></div>', unsafe_allow_html=True)
+                            with metric_col2:
+                                st.markdown(f'<div class="metric-card">💰 参加費目安<br><strong>{header_info["参加費"]}</strong></div>', unsafe_allow_html=True)
 
-                        display_cols = ['時間', '行程・内容', '交通・費用', '交流ポイント']
-                        st.dataframe(route_info[display_cols], hide_index=True)
-                    else:
-                        st.warning(f"ルートNo.{int(assigned_route_no)} の詳細が見つかりません。")
+                            st.markdown("#### 📅 詳細スケジュール")
+                            display_cols = ['時間', '行程・内容', '交通・費用', '交流ポイント']
+                            st.dataframe(route_info[display_cols], hide_index=True, use_container_width=True)
+                        else:
+                            st.warning(f"ルートNo.{int(assigned_route_no)} の詳細が見つかりません。")
         else:
             st.warning("まだ参加者が登録されていません。")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # --- Tab3: 当日用チャット ---
 with tab3:
-    st.header("アシスタントチャット")
-    st.info("街コンでの振る舞いや会話に困ったら、アシスタントに相談してみましょう！")
+    st.markdown('<div class="chat-container fade-in">', unsafe_allow_html=True)
+    st.markdown("## 💬 アシスタントチャット")
+    st.info("🤖 街コンでの振る舞いや会話に困ったら、多摩地域のことを知り尽くしたアシスタントに相談してみましょう！")
 
     users_df = pd.read_csv(USER_DATA_FILE)
 
@@ -251,7 +573,7 @@ with tab3:
         char_df = None
 
     if len(users_df) > 0:
-        user_name = st.selectbox("あなたのニックネームを選択してください", options=users_df['name'].unique())
+        user_name = st.selectbox("🎭 あなたのニックネームを選択してください", options=users_df['name'].unique())
 
         if user_name:
             user_info = users_df[users_df['name'] == user_name].iloc[0]
@@ -269,7 +591,7 @@ with tab3:
                     else:
                         st.warning(f"アシスタント用アイコン画像が見つかりません: {image_path}")
 
-            st.write(f"こんにちは、{user_name}さん！ あなたは **{user_animal}** タイプです。")
+            st.markdown(f"🌟 こんにちは、**{user_name}**さん！ あなたは **{user_animal}** タイプです。")
 
             if "messages" not in st.session_state:
                 st.session_state.messages = []
@@ -277,24 +599,28 @@ with tab3:
             # チャット履歴の表示 (カスタムレイアウト)
             for msg in st.session_state.messages:
                 if msg["role"] == "assistant":
+                    st.markdown('<div class="chat-row">', unsafe_allow_html=True)
                     col1, col2 = st.columns([1, 5])
                     with col1:
                         if msg.get("avatar_path"):
                             st.image(msg["avatar_path"])
                         else:
-                            st.markdown("<div style='font-size: 5rem; text-align: center;'>🤖</div>", unsafe_allow_html=True)
-                        st.markdown(f"<p class='avatar-container char-name'>{msg['char_name']}</p>", unsafe_allow_html=True)
+                            st.markdown('<div class="icon-large">🤖</div>', unsafe_allow_html=True)
+                        st.markdown(f"<p class='char-name'>{msg['char_name']}</p>", unsafe_allow_html=True)
                     with col2:
-                        st.markdown(f"<div class='message-bubble'>{msg['content']}</div>", unsafe_allow_html=True)
+                        st.markdown(f'<div class="message-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
                 else: # user
+                    st.markdown('<div class="chat-row user-message">', unsafe_allow_html=True)
                     col1, col2 = st.columns([5, 1])
                     with col1:
-                        st.markdown(f"<div class='message-bubble user-message'>{msg['content']}</div>", unsafe_allow_html=True)
+                        st.markdown(f'<div class="message-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
                     with col2:
-                        st.markdown("<div style='font-size: 5rem; text-align: center;'>👤</div>", unsafe_allow_html=True)
-                        st.markdown(f"<p class='avatar-container char-name'>あなた</p>", unsafe_allow_html=True)
+                        st.markdown('<div class="icon-large">👤</div>', unsafe_allow_html=True)
+                        st.markdown("<p class='char-name'>あなた</p>", unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
 
-            if prompt := st.chat_input("アシスタントにメッセージを送る"):
+            if prompt := st.chat_input("💬 アシスタントにメッセージを送る"):
                 st.session_state.messages.append({"role": "user", "content": prompt})
 
                 response = get_assistant_response(prompt)
@@ -307,3 +633,5 @@ with tab3:
                 st.rerun()
     else:
         st.warning("利用するには、まず「事前登録」タブでユーザーを登録してください。")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
