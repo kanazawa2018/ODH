@@ -354,8 +354,8 @@ def get_assistant_response(user_input):
 # --- ユーザー統計情報 ---
 def show_user_stats():
     try:
-        # Use the python engine for more robust parsing
-        users_df = pd.read_csv(USER_DATA_FILE, engine='python')
+        # Use the python engine and handle bad lines for more robust parsing
+        users_df = pd.read_csv(USER_DATA_FILE, engine='python', on_bad_lines='warn')
         if not users_df.empty:
             col1, col2, col3, col4 = st.columns(4)
             male_count = len(users_df[users_df['gender'] == '男性'])
@@ -407,15 +407,15 @@ def main():
                 st.error("⚠️ ニックネームと趣味は必須です。")
             else:
                 try:
-                    # Use the python engine for more robust parsing
-                    char_df = pd.read_csv(CHAR_INFO_FILE, engine='python')
+                    # Use the python engine and handle bad lines for more robust parsing
+                    char_df = pd.read_csv(CHAR_INFO_FILE, engine='python', on_bad_lines='warn')
                     animal = assign_animal(char_df)
                     
                     new_user = pd.DataFrame([{'name': name, 'gender': gender, 'age_group': age_group, 'hobbies': ", ".join(hobbies), 'pref_age_group': '', 'pref_hobbies': '', 'animal': animal, 'group_id': 0, 'route_no': 0}])
                     
                     try:
-                        # Use the python engine for more robust parsing
-                        users_df = pd.read_csv(USER_DATA_FILE, engine='python')
+                        # Use the python engine and handle bad lines for more robust parsing
+                        users_df = pd.read_csv(USER_DATA_FILE, engine='python', on_bad_lines='warn')
                     except (FileNotFoundError, pd.errors.EmptyDataError):
                         users_df = pd.DataFrame()
 
@@ -438,9 +438,9 @@ def main():
         
         if st.button("🎲 最新の参加者でグループとルートを編成する", use_container_width=True):
             try:
-                # Use the python engine for more robust parsing
-                users_df = pd.read_csv(USER_DATA_FILE, engine='python')
-                routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python')
+                # Use the python engine and handle bad lines for more robust parsing
+                users_df = pd.read_csv(USER_DATA_FILE, engine='python', on_bad_lines='warn')
+                routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python', on_bad_lines='warn')
                 if not users_df.empty:
                     users_with_groups_df = assign_groups_and_routes(users_df, routes_df)
                     users_with_groups_df.to_csv(USER_DATA_FILE, index=False)
@@ -452,9 +452,9 @@ def main():
                 st.error(f"⚠️ エラーが発生しました: {e}")
         
         try:
-            # Use the python engine for more robust parsing
-            users_df = pd.read_csv(USER_DATA_FILE, engine='python')
-            routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python')
+            # Use the python engine and handle bad lines for more robust parsing
+            users_df = pd.read_csv(USER_DATA_FILE, engine='python', on_bad_lines='warn')
+            routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python', on_bad_lines='warn')
             
             if not users_df.empty and 'group_id' in users_df.columns and users_df['group_id'].max() > 0:
                 st.markdown("--- \n### 📋 現在のグループ編成")
@@ -495,8 +495,8 @@ def main():
         st.info("街コンでの会話に困ったら、アシスタントに相談してみましょう！")
         
         try:
-            # Use the python engine for more robust parsing
-            users_df = pd.read_csv(USER_DATA_FILE, engine='python')
+            # Use the python engine and handle bad lines for more robust parsing
+            users_df = pd.read_csv(USER_DATA_FILE, engine='python', on_bad_lines='warn')
             if not users_df.empty:
                 user_name = st.selectbox("あなたのニックネームを選択してください", options=[''] + users_df['name'].unique().tolist())
                 if user_name:
