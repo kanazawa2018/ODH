@@ -66,11 +66,11 @@ SAMPLE_CHAR_DATA = """動物,キャラクター名
 アカカンガルー,マルオ"""
 
 SAMPLE_ROUTE_DATA = """周遊ルートNo.,コース名,時間,行程・内容,交通・費用,交流ポイント,所要時間,参加費
-1,Safari ✕ 花畑ピクニック,12:00,多摩動物公園正門前→園内ラリー→モノレール→昭和記念公園ピクニック,入園600円+モノレール310円+公園450円,写真を見せ合いながらトーク・４人１組ゲーム,4時間15分,3000円
-2,レトロ建築スタンプラリー,9:30,江戸東京たてもの園でスタンプラリー→昭和の居間体験→伝統玩具ワークショップ,モノレール・JR・バス片道750円+入園400円,20分毎にチーム替え・作品交換タイム,5時間20分,3500円
-3,深大寺そば打ち Love クッキング,11:00,深大寺おみくじ→そば打ち体験→神代植物公園バラ園ツアー,京王線・バス片道490円+体験2000円+入園500円,共同作業で距離縮まる・花言葉トーク,5時間,4500円
-4,府中 歴史＆ホースバックヤードツアー,10:00,府中市郷土の森→謎解き脱出ゲーム→東京競馬場バックヤード見学,交通費740円+入園300円+見学200円,５人１組で協力・競走馬の名前ビンゴ,5時間10分,4000円
-5,高尾山 サンセット・ケーブル Love Walk,13:00,ケーブルカーで中腹→ペアトレッキング→山頂カフェ→駅前足湯,京王線300円+ケーブル960円+足湯500円,山恋フォトミッション・目隠し足湯Q&A,4時間,4000円"""
+1,"Safari ✕ 花畑ピクニック",12:00,"多摩動物公園正門前→園内ラリー→モノレール→昭和記念公園ピクニック","入園600円+モノレール310円+公園450円","写真を見せ合いながらトーク・４人１組ゲーム",4時間15分,3000円
+2,"レトロ建築スタンプラリー",9:30,"江戸東京たてもの園でスタンプラリー→昭和の居間体験→伝統玩具ワークショップ","モノレール・JR・バス片道750円+入園400円","20分毎にチーム替え・作品交換タイム",5時間20分,3500円
+3,"深大寺そば打ち Love クッキング",11:00,"深大寺おみくじ→そば打ち体験→神代植物公園バラ園ツアー","京王線・バス片道490円+体験2000円+入園500円","共同作業で距離縮まる・花言葉トーク",5時間,4500円
+4,"府中 歴史＆ホースバックヤードツアー",10:00,"府中市郷土の森→謎解き脱出ゲーム→東京競馬場バックヤード見学","交通費740円+入園300円+見学200円","５人１組で協力・競走馬の名前ビンゴ",5時間10分,4000円
+5,"高尾山 サンセット・ケーブル Love Walk",13:00,"ケーブルカーで中腹→ペアトレッキング→山頂カフェ→駅前足湯","京王線300円+ケーブル960円+足湯500円","山恋フォトミッション・目隠し足湯Q&A",4時間,4000円"""
 
 # --- 初期設定: 必要なファイルやディレクトリが存在しない場合にサンプルを作成 ---
 def setup_files():
@@ -354,7 +354,8 @@ def get_assistant_response(user_input):
 # --- ユーザー統計情報 ---
 def show_user_stats():
     try:
-        users_df = pd.read_csv(USER_DATA_FILE)
+        # Use the python engine for more robust parsing
+        users_df = pd.read_csv(USER_DATA_FILE, engine='python')
         if not users_df.empty:
             col1, col2, col3, col4 = st.columns(4)
             male_count = len(users_df[users_df['gender'] == '男性'])
@@ -406,13 +407,15 @@ def main():
                 st.error("⚠️ ニックネームと趣味は必須です。")
             else:
                 try:
-                    char_df = pd.read_csv(CHAR_INFO_FILE)
+                    # Use the python engine for more robust parsing
+                    char_df = pd.read_csv(CHAR_INFO_FILE, engine='python')
                     animal = assign_animal(char_df)
                     
                     new_user = pd.DataFrame([{'name': name, 'gender': gender, 'age_group': age_group, 'hobbies': ", ".join(hobbies), 'pref_age_group': '', 'pref_hobbies': '', 'animal': animal, 'group_id': 0, 'route_no': 0}])
                     
                     try:
-                        users_df = pd.read_csv(USER_DATA_FILE)
+                        # Use the python engine for more robust parsing
+                        users_df = pd.read_csv(USER_DATA_FILE, engine='python')
                     except (FileNotFoundError, pd.errors.EmptyDataError):
                         users_df = pd.DataFrame()
 
@@ -435,22 +438,25 @@ def main():
         
         if st.button("🎲 最新の参加者でグループとルートを編成する", use_container_width=True):
             try:
-                users_df = pd.read_csv(USER_DATA_FILE)
-                routes_df = pd.read_csv(ROUTE_DATA_FILE)
+                # Use the python engine for more robust parsing
+                users_df = pd.read_csv(USER_DATA_FILE, engine='python')
+                routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python')
                 if not users_df.empty:
                     users_with_groups_df = assign_groups_and_routes(users_df, routes_df)
                     users_with_groups_df.to_csv(USER_DATA_FILE, index=False)
                     st.success("✅ グループ編成と周遊ルートの作成が完了しました！")
+                    st.rerun() # Rerun to display the new groups immediately
                 else:
                     st.warning("⚠️ まだ参加者が登録されていません。")
             except Exception as e:
                 st.error(f"⚠️ エラーが発生しました: {e}")
         
         try:
-            users_df = pd.read_csv(USER_DATA_FILE)
-            routes_df = pd.read_csv(ROUTE_DATA_FILE)
+            # Use the python engine for more robust parsing
+            users_df = pd.read_csv(USER_DATA_FILE, engine='python')
+            routes_df = pd.read_csv(ROUTE_DATA_FILE, engine='python')
             
-            if not users_df.empty and users_df['group_id'].max() > 0:
+            if not users_df.empty and 'group_id' in users_df.columns and users_df['group_id'].max() > 0:
                 st.markdown("--- \n### 📋 現在のグループ編成")
                 num_groups = int(users_df['group_id'].max())
                 
@@ -489,7 +495,8 @@ def main():
         st.info("街コンでの会話に困ったら、アシスタントに相談してみましょう！")
         
         try:
-            users_df = pd.read_csv(USER_DATA_FILE)
+            # Use the python engine for more robust parsing
+            users_df = pd.read_csv(USER_DATA_FILE, engine='python')
             if not users_df.empty:
                 user_name = st.selectbox("あなたのニックネームを選択してください", options=[''] + users_df['name'].unique().tolist())
                 if user_name:
