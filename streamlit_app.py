@@ -123,7 +123,7 @@ setup_files()
 
 # ページ設定とカスタムCSS
 st.set_page_config(
-    page_title="TAMA CONNECT - 多摩地域街コンアプリ", 
+    page_title="アニマル縁結び - 多摩地域の魅力を知ろう", 
     page_icon="💕",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -437,7 +437,7 @@ html, body, [class*="css"] {
 # ヘッダー
 st.markdown("""
 <div class="header-container fade-in">
-    <div class="app-title">TAMA CONNECT</div>
+    <div class="app-title">アニマル縁結び</div>
     <div class="app-subtitle">多摩地域で素敵な出会いを見つけよう</div>
     <div class="tama-badge">🌸 TOKYO TAMA AREA 🌸</div>
 </div>
