@@ -92,7 +92,7 @@ setup_files()
 
 # ページ設定とカスタムCSS
 st.set_page_config(
-    page_title="TAMA CONNECT - 多摩地域街コンアプリ", 
+    page_title="アニマル縁結び - 多摩地域の魅力を楽しむ街コンアプリ", 
     page_icon="💕",
     layout="wide",
     initial_sidebar_state="collapsed"
