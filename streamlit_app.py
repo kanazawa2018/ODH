@@ -8,7 +8,7 @@ import math
 USER_DATA_FILE = '/tmp/users.csv'
 CHAR_INFO_FILE = '/tmp/キャラ情報.csv'
 ROUTE_DATA_FILE = '/tmp/周遊ルート.csv'
-CHAR_IMAGE_DIR = '/tmp/キャラ画像'
+CHAR_IMAGE_DIR = '/キャラ画像'
 
 # --- 初期設定: 必要なファイルやディレクトリが存在しない場合に作成 ---
 def setup_files():
