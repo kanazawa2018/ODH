@@ -5,7 +5,7 @@ import os
 import math
 
 # --- 定数定義 ---
-USER_DATA_FILE = '/users.csv'
+USER_DATA_FILE = '/tmp/users.csv'
 CHAR_INFO_FILE = '/キャラ情報.csv'
 ROUTE_DATA_FILE = '/周遊ルート.csv'
 CHAR_IMAGE_DIR = '/キャラ画像'
