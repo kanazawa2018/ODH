@@ -639,22 +639,21 @@ def main():
     
     # --- Tab3: 当日用チャット ---
     with tab3:
-        st.header("🤖 AIアシスタントチャット")
-        st.info("街コンでの振る舞いや会話に困ったら、アシスタントに相談してみましょう！")
+        st.markdown("## 💬 AIアシスタントチャット")
+        st.info("街コンでの会話に困ったら、アシスタントに相談してみましょう！")
         
         try:
             users_df = pd.read_csv(USER_DATA_FILE)
             char_df = pd.read_csv(CHAR_INFO_FILE)
             
             if len(users_df) > 0:
-                # ユーザー選択
                 user_name = st.selectbox(
-                    "あなたのニックネームを選択してください", 
-                    options=['選択してください...'] + list(users_df['name'].unique()),
-                    index=0
+                    "あなたのニックネームを選択してください",
+                    options=[''] + users_df['name'].unique().tolist(),
+                    format_func=lambda x: "選択してください..." if x == '' else x
                 )
                 
-                if user_name != '選択してください...':
+                if user_name and user_name != '':
                     user_info = users_df[users_df['name'] == user_name].iloc[0]
                     user_animal = user_info['animal']
                     
@@ -677,152 +676,143 @@ def main():
                     with col1:
                         if assistant_avatar_path:
                             st.image(assistant_avatar_path, width=120)
+                            st.markdown(f"""
+                            <div class="animal-card" style="padding: 1rem;">
+                                <strong>{user_name}さん</strong><br>
+                                <small>{user_animal}</small><br>
+                                <small>✨ {assistant_char_name}</small>
+                            </div>
+                            """, unsafe_allow_html=True)
                         else:
-                            st.markdown("<div style='font-size: 6rem; text-align: center;'>🎭</div>", unsafe_allow_html=True)
-                        st.markdown(f"**{user_name}**")
-                        st.markdown(f"🎭 {user_animal}")
-                        st.markdown(f"✨ {assistant_char_name}")
+                            animal_emoji = get_animal_emoji(user_animal)
+                            st.markdown(f"""
+                            <div class="animal-card" style="padding: 1rem;">
+                                <div style="font-size: 3rem;">{animal_emoji}</div>
+                                <strong>{user_name}さん</strong><br>
+                                <small>{user_animal}</small><br>
+                                <small>✨ {assistant_char_name}</small>
+                            </div>
+                            """, unsafe_allow_html=True)
                     
                     with col2:
-                        st.markdown(f"### こんにちは、{user_name}さん！")
-                        st.markdown(f"あなたのパートナー「**{assistant_char_name}**」がサポートします 🎉")
+                        # チャット履歴の初期化
+                        if "messages" not in st.session_state:
+                            st.session_state.messages = []
+                            # ウェルカムメッセージ
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": f"こんにちは、{user_name}さん！🎉\n私は{assistant_char_name}です。街コンでの会話について、何でも気軽に相談してくださいね！",
+                                "avatar_path": assistant_avatar_path,
+                                "char_name": assistant_char_name
+                            })
                         
-                        # グループ情報も表示
-                        if 'group_id' in user_info and user_info['group_id'] > 0:
-                            st.info(f"👥 あなたはグループ {int(user_info['group_id'])} のメンバーです")
+                        # チャット履歴表示
+                        for message in st.session_state.messages:
+                            if message["role"] == "assistant":
+                                # アシスタントメッセージ
+                                with st.chat_message("assistant", avatar="🤖"):
+                                    if message.get("avatar_path") and os.path.exists(message.get("avatar_path")):
+                                        col_img, col_text = st.columns([1, 4])
+                                        with col_img:
+                                            st.image(message["avatar_path"], width=50)
+                                        with col_text:
+                                            st.write(f"**{message.get('char_name', 'アシスタント')}**: {message['content']}")
+                                    else:
+                                        st.write(f"**{message.get('char_name', 'アシスタント')}**: {message['content']}")
+                            else:
+                                # ユーザーメッセージ
+                                with st.chat_message("user"):
+                                    st.write(message["content"])
+                        
+                        # ユーザー入力
+                        if prompt := st.chat_input("メッセージを入力..."):
+                            # ユーザーメッセージを追加
+                            st.session_state.messages.append({"role": "user", "content": prompt})
+                            
+                            # アシスタントの応答
+                            response = get_assistant_response(prompt)
+                            st.session_state.messages.append({
+                                "role": "assistant", 
+                                "content": response,
+                                "avatar_path": assistant_avatar_path,
+                                "char_name": assistant_char_name
+                            })
+                            st.rerun()
                     
-                    # チャット履歴の初期化
-                    if "messages" not in st.session_state:
-                        st.session_state.messages = []
-                        # ウェルカムメッセージ
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": f"こんにちは、{user_name}さん！🎉\n私は{assistant_char_name}です。街コンでの会話や行動について、何でも気軽に相談してくださいね！",
-                            "avatar_path": assistant_avatar_path,
-                            "char_name": assistant_char_name
-                        })
-                    
-                    # チャット履歴の表示
-                    for msg in st.session_state.messages:
-                        if msg["role"] == "assistant":
-                            # アシスタントメッセージ
-                            st.markdown('<div class="chat-row">', unsafe_allow_html=True)
-                            col1, col2 = st.columns([1, 4])
-                            with col1:
-                                st.markdown('<div class="avatar-container">', unsafe_allow_html=True)
-                                if msg.get("avatar_path") and os.path.exists(msg.get("avatar_path")):
-                                    st.image(msg["avatar_path"], width=80)
-                                else:
-                                    st.markdown("<div style='font-size: 4rem; text-align: center;'>🤖</div>", unsafe_allow_html=True)
-                                st.markdown(f'<div class="char-name">{msg["char_name"]}</div>', unsafe_allow_html=True)
-                                st.markdown('</div>', unsafe_allow_html=True)
-                            with col2:
-                                st.markdown(f'<div class="message-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
-                            st.markdown('</div>', unsafe_allow_html=True)
-                        else:
-                            # ユーザーメッセージ
-                            st.markdown('<div class="chat-row user-message">', unsafe_allow_html=True)
-                            col1, col2 = st.columns([4, 1])
-                            with col1:
-                                st.markdown(f'<div class="message-bubble">{msg["content"]}</div>', unsafe_allow_html=True)
-                            with col2:
-                                st.markdown('<div class="avatar-container">', unsafe_allow_html=True)
-                                st.markdown("<div style='font-size: 4rem; text-align: center;'>👤</div>", unsafe_allow_html=True)
-                                st.markdown(f'<div class="char-name">{user_name}</div>', unsafe_allow_html=True)
-                                st.markdown('</div>', unsafe_allow_html=True)
-                            st.markdown('</div>', unsafe_allow_html=True)
-                    
-                    # クイックアクションボタン
+                    # クイックアクション
                     st.markdown("### 💡 クイックヘルプ")
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        if st.button("😰 緊張しています"):
-                            quick_response = get_assistant_response("緊張")
+                        if st.button("😰 緊張してます"):
+                            response = get_assistant_response("緊張")
                             st.session_state.messages.append({
-                                "role": "assistant",
-                                "content": quick_response,
+                                "role": "assistant", 
+                                "content": response,
                                 "avatar_path": assistant_avatar_path,
                                 "char_name": assistant_char_name
                             })
                             st.rerun()
-                    
                     with col2:
                         if st.button("🗣️ 話題に困った"):
-                            quick_response = get_assistant_response("話")
+                            response = get_assistant_response("話")
                             st.session_state.messages.append({
-                                "role": "assistant",
-                                "content": quick_response,
+                                "role": "assistant", 
+                                "content": response,
                                 "avatar_path": assistant_avatar_path,
                                 "char_name": assistant_char_name
                             })
                             st.rerun()
-                    
                     with col3:
-                        if st.button("🤐 沈黙が気まずい"):
-                            quick_response = get_assistant_response("沈黙")
+                        if st.button("📍 おすすめスポット"):
+                            response = get_assistant_response("おすすめ")
                             st.session_state.messages.append({
-                                "role": "assistant",
-                                "content": quick_response,
+                                "role": "assistant", 
+                                "content": response,
                                 "avatar_path": assistant_avatar_path,
                                 "char_name": assistant_char_name
                             })
                             st.rerun()
-                    
-                    # チャット入力
-                    if prompt := st.chat_input("アシスタントにメッセージを送る"):
-                        # ユーザーメッセージを追加
-                        st.session_state.messages.append({
-                            "role": "user", 
-                            "content": prompt
-                        })
-                        
-                        # アシスタントの応答を生成
-                        response = get_assistant_response(prompt)
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": response,
-                            "avatar_path": assistant_avatar_path,
-                            "char_name": assistant_char_name
-                        })
-                        st.rerun()
-                else:
-                    st.info("👆 上のセレクトボックスからあなたのニックネームを選択してください。")
             else:
                 st.warning("⚠️ 利用するには、まず「事前登録」タブでユーザーを登録してください。")
-                
-        # --- Tab4: 多摩地域情報 ---
-        with tab4:
-            st.markdown("## 📍 多摩地域観光情報")
-            st.markdown("東京都オープンデータを活用した、リアルタイム観光情報をお届けします。")
+        
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            st.warning("⚠️ 利用するには、まず「事前登録」タブでユーザーを登録してください。")
+        except Exception as e:
+            st.error(f"⚠️ エラーが発生しました: {e}")
+    
+    # --- Tab4: 多摩地域情報 ---
+    with tab4:
+        st.markdown("## 📍 多摩地域観光情報")
+        st.markdown("東京都オープンデータを活用した、リアルタイム観光情報をお届けします。")
+        
+        # 多摩地域の情報を表示
+        show_tama_info()
+        
+        # アクセス情報
+        st.markdown("---")
+        st.markdown("### 🚃 アクセス情報")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.info("""
+            **主要路線:**
+            - JR中央線・青梅線・南武線・横浜線・八高線
+            - 京王線・小田急線・西武線
+            - 多摩モノレール
             
-            # 多摩地域の情報を表示
-            show_tama_info()
+            新宿から30分～1時間でアクセス可能！
+            """)
+        
+        with col2:
+            st.success("""
+            **多摩地域の魅力:**
+            - 都心から近い大自然
+            - 四季折々の絶景スポット
+            - 歴史と文化の宝庫
+            - グルメの隠れた名店多数
             
-            # アクセス情報
-            st.markdown("---")
-            st.markdown("### 🚃 アクセス情報")
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                st.info("""
-                **主要路線:**
-                - JR中央線・青梅線・南武線・横浜線・八高線
-                - 京王線・小田急線・西武線
-                - 多摩モノレール
-                
-                新宿から30分～1時間でアクセス可能！
-                """)
-            
-            with col2:
-                st.success("""
-                **多摩地域の魅力:**
-                - 都心から近い大自然
-                - 四季折々の絶景スポット
-                - 歴史と文化の宝庫
-                - グルメの隠れた名店多数
-                
-                デートに最適なスポットが満載！
-                """)
+            デートに最適なスポットが満載！
+            """)
     
     # アプリ実行
     if __name__ == "__main__":
