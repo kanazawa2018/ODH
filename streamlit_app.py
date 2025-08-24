@@ -75,166 +75,175 @@ SAMPLE_ROUTE_DATA = """周遊ルートNo.,コース名,時間,行程・内容,�
 def setup_files():
     """
     アプリ実行に必要なユーザーデータファイルやディレクトリを初期作成する。
-    デモ用のサンプルデータも含めて準備。
+    既存のファイルがある場合はそれを使用し、ない場合のみサンプルデータを作成。
     """
-    # ユーザー情報CSV（デモ用データを含む）
+    # ディレクトリ作成
+    os.makedirs(os.path.dirname(USER_DATA_FILE), exist_ok=True)
+    os.makedirs(os.path.dirname(CHAR_INFO_FILE), exist_ok=True)
+    os.makedirs(os.path.dirname(ROUTE_DATA_FILE), exist_ok=True)
+    os.makedirs(CHAR_IMAGE_DIR, exist_ok=True)
+    
+    # ユーザー情報CSV - 既存ファイルがない場合のみサンプルデータを作成
     if not os.path.exists(USER_DATA_FILE):
-        # デモ用のサンプルデータを書き込み
-        with open(USER_DATA_FILE, 'w', encoding='utf-8') as f:
-            f.write(SAMPLE_USERS_DATA)
+        try:
+            # デモ用のサンプルデータを書き込み
+            with open(USER_DATA_FILE, 'w', encoding='utf-8') as f:
+                f.write(SAMPLE_USERS_DATA)
+        except Exception as e:
+            st.error(f"ユーザーデータファイルの作成に失敗しました: {e}")
     
-    # ../input ディレクトリがなければ作成
-    input_dir = os.path.dirname(CHAR_INFO_FILE)
-    if not os.path.exists(input_dir):
-        os.makedirs(input_dir)
-    
-    # キャラ情報CSV（デモ用データ）
+    # キャラ情報CSV - 既存ファイルがない場合のみサンプルデータを作成
     if not os.path.exists(CHAR_INFO_FILE):
-        with open(CHAR_INFO_FILE, 'w', encoding='utf-8') as f:
-            f.write(SAMPLE_CHAR_DATA)
+        try:
+            with open(CHAR_INFO_FILE, 'w', encoding='utf-8') as f:
+                f.write(SAMPLE_CHAR_DATA)
+        except Exception as e:
+            st.error(f"キャラ情報ファイルの作成に失敗しました: {e}")
     
-    # 周遊ルートCSV（デモ用データ）
+    # 周遊ルートCSV - 既存ファイルがない場合のみサンプルデータを作成
     if not os.path.exists(ROUTE_DATA_FILE):
-        os.makedirs(os.path.dirname(ROUTE_DATA_FILE), exist_ok=True)
-        with open(ROUTE_DATA_FILE, 'w', encoding='utf-8') as f:
-            f.write(SAMPLE_ROUTE_DATA)
+        try:
+            with open(ROUTE_DATA_FILE, 'w', encoding='utf-8') as f:
+                f.write(SAMPLE_ROUTE_DATA)
+        except Exception as e:
+            st.error(f"周遊ルートファイルの作成に失敗しました: {e}")
     
-    # キャラ画像ディレクトリがなければ作成
-    if not os.path.exists(CHAR_IMAGE_DIR):
-        os.makedirs(CHAR_IMAGE_DIR)
-    
-    # 多摩地域イベント情報の充実したデータ
+    # 多摩地域イベント情報の充実したデータ - 既存ファイルがない場合のみ作成
     if not os.path.exists(EVENT_DATA_FILE):
-        sample_events = {
-            "seasonal_events": [
-                {"month": 1, "event": "🎍 多摩センター新春イルミネーション", "crowd_level": 3, 
-                 "description": "100万球のLEDが織りなす幻想的な光の世界。カップルに大人気！"},
-                {"month": 2, "event": "🌸 高尾山梅まつり", "crowd_level": 2,
-                 "description": "約1000本の紅白の梅が咲き誇る。甘酒の振る舞いもあり♪"},
-                {"month": 3, "event": "🌸 小金井公園桜まつり", "crowd_level": 5,
-                 "description": "都内屈指の桜の名所！50種1700本の桜が見事です"},
-                {"month": 4, "event": "🌺 昭和記念公園チューリップフェスティバル", "crowd_level": 4,
-                 "description": "20万球のチューリップが咲く、関東最大級の花畑"},
-                {"month": 5, "event": "🎏 府中くらやみ祭", "crowd_level": 5,
-                 "description": "関東三大奇祭の一つ！1000年以上の歴史を持つ大國魂神社の例大祭"},
-                {"month": 8, "event": "🎆 立川まつり国営昭和記念公園花火大会", "crowd_level": 5,
-                 "description": "約5000発の花火が夜空を彩る！多摩地域最大級の花火大会"},
-                {"month": 11, "event": "🍁 高尾山もみじまつり", "crowd_level": 5,
-                 "description": "紅葉の絶景スポット！ケーブルカーから見る紅葉は格別"},
-                {"month": 12, "event": "✨ よみうりランドジュエルミネーション", "crowd_level": 4,
-                 "description": "世界的照明デザイナー石井幹子プロデュースの宝石色イルミネーション"}
-            ],
-            "popular_spots": [
-                {
-                    "name": "🏔️ 高尾山",
-                    "category": "自然・絶景",
-                    "avg_crowd": 3.5,
-                    "best_time": "平日午前",
-                    "highlight": "ミシュラン三ツ星の山！都心から1時間で本格登山",
-                    "instagram_spots": ["山頂からの富士山", "もみじ台", "薬王院"],
-                    "date_point": "ケーブルカーでの会話、達成感の共有"
-                },
-                {
-                    "name": "🎀 サンリオピューロランド",
-                    "category": "テーマパーク",
-                    "avg_crowd": 4.0,
-                    "best_time": "平日",
-                    "highlight": "全天候型屋内テーマパーク！キャラクターグリーティングが充実",
-                    "instagram_spots": ["レディキティハウス", "ミラクルギフトパレード", "キキララ撮影スポット"],
-                    "date_point": "童心に返って楽しめる、写真撮影で盛り上がる"
-                },
-                {
-                    "name": "🦁 多摩動物公園",
-                    "category": "動物園",
-                    "avg_crowd": 3.0,
-                    "best_time": "開園直後",
-                    "highlight": "300種を超える動物！アジア園のオランウータンスカイウォークは必見",
-                    "instagram_spots": ["ライオンバス", "コアラ館", "チーターの丘"],
-                    "date_point": "動物の話題で自然に会話が弾む"
-                },
-                {
-                    "name": "🏛️ 江戸東京たてもの園",
-                    "category": "博物館",
-                    "avg_crowd": 2.0,
-                    "best_time": "いつでも",
-                    "highlight": "ジブリ映画『千と千尋の神隠し』のモデルになった建物も！",
-                    "instagram_spots": ["子宝湯", "武居三省堂", "デ・ラランデ邸"],
-                    "date_point": "レトロな雰囲気で特別な時間を演出"
-                },
-                {
-                    "name": "⛩️ 深大寺",
-                    "category": "寺社・歴史",
-                    "avg_crowd": 2.5,
-                    "best_time": "午前中",
-                    "highlight": "都内で2番目に古い寺！名物深大寺そばは20店舗以上",
-                    "instagram_spots": ["山門", "本堂", "深大寺そば"],
-                    "date_point": "おみくじで盛り上がる、そば打ち体験"
-                },
-                {
-                    "name": "🌺 昭和記念公園",
-                    "category": "公園",
-                    "avg_crowd": 3.0,
-                    "best_time": "平日午後",
-                    "highlight": "東京ドーム39個分の広大な国営公園！四季折々の花が楽しめる",
-                    "instagram_spots": ["みんなの原っぱ", "日本庭園", "花の丘"],
-                    "date_point": "レンタサイクルでサイクリングデート"
-                },
-                {
-                    "name": "🎡 よみうりランド",
-                    "category": "遊園地",
-                    "avg_crowd": 3.5,
-                    "best_time": "平日",
-                    "highlight": "絶叫マシンから観覧車まで43機種のアトラクション",
-                    "instagram_spots": ["大観覧車", "バンデット", "ジュエルミネーション"],
-                    "date_point": "スリル共有で距離が縮まる"
-                },
-                {
-                    "name": "🏇 東京競馬場",
-                    "category": "レジャー",
-                    "avg_crowd": 4.0,
-                    "best_time": "重賞レース以外の日",
-                    "highlight": "競馬だけじゃない！子供向け遊具や緑地公園も充実",
-                    "instagram_spots": ["パドック", "ウイナーズサークル", "馬場内庭園"],
-                    "date_point": "初心者でも楽しめる、一緒に予想して盛り上がる"
-                }
-            ],
-            "hidden_gems": [
-                {
-                    "name": "🌿 都立小山内裏公園",
-                    "description": "多摩ニュータウン最大の都市公園。尾根道からの眺望が素晴らしい",
-                    "access": "京王相模原線「南大沢」駅から徒歩20分"
-                },
-                {
-                    "name": "☕ 国立天文台",
-                    "description": "第一赤道儀室など大正時代の建物が見学可能。宇宙に興味がある人におすすめ",
-                    "access": "JR「武蔵境」駅からバス15分"
-                },
-                {
-                    "name": "🎨 府中市美術館",
-                    "description": "「生活と美術」をテーマにした展示。公園内にありピクニックも楽しめる",
-                    "access": "京王線「東府中」駅からバス"
-                }
-            ],
-            "gourmet_spots": [
-                {
-                    "name": "🍜 八王子ラーメン",
-                    "description": "刻み玉ねぎが特徴の醤油ラーメン。市内に50店舗以上！",
-                    "recommended": "みんみんラーメン、吾衛門"
-                },
-                {
-                    "name": "🍖 立川の焼肉街",
-                    "description": "駅周辺に高級店からリーズナブルな店まで多数",
-                    "recommended": "炭火焼肉ホルモン横丁、焼肉ライク"
-                },
-                {
-                    "name": "🍰 吉祥寺スイーツ",
-                    "description": "小さなパティスリーから有名店まで、スイーツ激戦区",
-                    "recommended": "アテスウェイ、小ざさ"
-                }
-            ]
-        }
-        with open(EVENT_DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(sample_events, f, ensure_ascii=False, indent=2)
+        try:
+            sample_events = {
+                "seasonal_events": [
+                    {"month": 1, "event": "🎍 多摩センター新春イルミネーション", "crowd_level": 3, 
+                     "description": "100万球のLEDが織りなす幻想的な光の世界。カップルに大人気！"},
+                    {"month": 2, "event": "🌸 高尾山梅まつり", "crowd_level": 2,
+                     "description": "約1000本の紅白の梅が咲き誇る。甘酒の振る舞いもあり♪"},
+                    {"month": 3, "event": "🌸 小金井公園桜まつり", "crowd_level": 5,
+                     "description": "都内屈指の桜の名所！50種1700本の桜が見事です"},
+                    {"month": 4, "event": "🌺 昭和記念公園チューリップフェスティバル", "crowd_level": 4,
+                     "description": "20万球のチューリップが咲く、関東最大級の花畑"},
+                    {"month": 5, "event": "🎏 府中くらやみ祭", "crowd_level": 5,
+                     "description": "関東三大奇祭の一つ！1000年以上の歴史を持つ大國魂神社の例大祭"},
+                    {"month": 8, "event": "🎆 立川まつり国営昭和記念公園花火大会", "crowd_level": 5,
+                     "description": "約5000発の花火が夜空を彩る！多摩地域最大級の花火大会"},
+                    {"month": 11, "event": "🍁 高尾山もみじまつり", "crowd_level": 5,
+                     "description": "紅葉の絶景スポット！ケーブルカーから見る紅葉は格別"},
+                    {"month": 12, "event": "✨ よみうりランドジュエルミネーション", "crowd_level": 4,
+                     "description": "世界的照明デザイナー石井幹子プロデュースの宝石色イルミネーション"}
+                ],
+                "popular_spots": [
+                    {
+                        "name": "🏔️ 高尾山",
+                        "category": "自然・絶景",
+                        "avg_crowd": 3.5,
+                        "best_time": "平日午前",
+                        "highlight": "ミシュラン三ツ星の山！都心から1時間で本格登山",
+                        "instagram_spots": ["山頂からの富士山", "もみじ台", "薬王院"],
+                        "date_point": "ケーブルカーでの会話、達成感の共有"
+                    },
+                    {
+                        "name": "🎀 サンリオピューロランド",
+                        "category": "テーマパーク",
+                        "avg_crowd": 4.0,
+                        "best_time": "平日",
+                        "highlight": "全天候型屋内テーマパーク！キャラクターグリーティングが充実",
+                        "instagram_spots": ["レディキティハウス", "ミラクルギフトパレード", "キキララ撮影スポット"],
+                        "date_point": "童心に返って楽しめる、写真撮影で盛り上がる"
+                    },
+                    {
+                        "name": "🦁 多摩動物公園",
+                        "category": "動物園",
+                        "avg_crowd": 3.0,
+                        "best_time": "開園直後",
+                        "highlight": "300種を超える動物！アジア園のオランウータンスカイウォークは必見",
+                        "instagram_spots": ["ライオンバス", "コアラ館", "チーターの丘"],
+                        "date_point": "動物の話題で自然に会話が弾む"
+                    },
+                    {
+                        "name": "🏛️ 江戸東京たてもの園",
+                        "category": "博物館",
+                        "avg_crowd": 2.0,
+                        "best_time": "いつでも",
+                        "highlight": "ジブリ映画『千と千尋の神隠し』のモデルになった建物も！",
+                        "instagram_spots": ["子宝湯", "武居三省堂", "デ・ラランデ邸"],
+                        "date_point": "レトロな雰囲気で特別な時間を演出"
+                    },
+                    {
+                        "name": "⛩️ 深大寺",
+                        "category": "寺社・歴史",
+                        "avg_crowd": 2.5,
+                        "best_time": "午前中",
+                        "highlight": "都内で2番目に古い寺！名物深大寺そばは20店舗以上",
+                        "instagram_spots": ["山門", "本堂", "深大寺そば"],
+                        "date_point": "おみくじで盛り上がる、そば打ち体験"
+                    },
+                    {
+                        "name": "🌺 昭和記念公園",
+                        "category": "公園",
+                        "avg_crowd": 3.0,
+                        "best_time": "平日午後",
+                        "highlight": "東京ドーム39個分の広大な国営公園！四季折々の花が楽しめる",
+                        "instagram_spots": ["みんなの原っぱ", "日本庭園", "花の丘"],
+                        "date_point": "レンタサイクルでサイクリングデート"
+                    },
+                    {
+                        "name": "🎡 よみうりランド",
+                        "category": "遊園地",
+                        "avg_crowd": 3.5,
+                        "best_time": "平日",
+                        "highlight": "絶叫マシンから観覧車まで43機種のアトラクション",
+                        "instagram_spots": ["大観覧車", "バンデット", "ジュエルミネーション"],
+                        "date_point": "スリル共有で距離が縮まる"
+                    },
+                    {
+                        "name": "🏇 東京競馬場",
+                        "category": "レジャー",
+                        "avg_crowd": 4.0,
+                        "best_time": "重賞レース以外の日",
+                        "highlight": "競馬だけじゃない！子供向け遊具や緑地公園も充実",
+                        "instagram_spots": ["パドック", "ウイナーズサークル", "馬場内庭園"],
+                        "date_point": "初心者でも楽しめる、一緒に予想して盛り上がる"
+                    }
+                ],
+                "hidden_gems": [
+                    {
+                        "name": "🌿 都立小山内裏公園",
+                        "description": "多摩ニュータウン最大の都市公園。尾根道からの眺望が素晴らしい",
+                        "access": "京王相模原線「南大沢」駅から徒歩20分"
+                    },
+                    {
+                        "name": "☕ 国立天文台",
+                        "description": "第一赤道儀室など大正時代の建物が見学可能。宇宙に興味がある人におすすめ",
+                        "access": "JR「武蔵境」駅からバス15分"
+                    },
+                    {
+                        "name": "🎨 府中市美術館",
+                        "description": "「生活と美術」をテーマにした展示。公園内にありピクニックも楽しめる",
+                        "access": "京王線「東府中」駅からバス"
+                    }
+                ],
+                "gourmet_spots": [
+                    {
+                        "name": "🍜 八王子ラーメン",
+                        "description": "刻み玉ねぎが特徴の醤油ラーメン。市内に50店舗以上！",
+                        "recommended": "みんみんラーメン、吾衛門"
+                    },
+                    {
+                        "name": "🍖 立川の焼肉街",
+                        "description": "駅周辺に高級店からリーズナブルな店まで多数",
+                        "recommended": "炭火焼肉ホルモン横丁、焼肉ライク"
+                    },
+                    {
+                        "name": "🍰 吉祥寺スイーツ",
+                        "description": "小さなパティスリーから有名店まで、スイーツ激戦区",
+                        "recommended": "アテスウェイ、小ざさ"
+                    }
+                ]
+            }
+            with open(EVENT_DATA_FILE, 'w', encoding='utf-8') as f:
+                json.dump(sample_events, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            # エラーが発生してもアプリは継続
+            pass
 
 # --- モダンなスタイル定義 ---
 def apply_modern_style():
@@ -533,68 +542,109 @@ def show_tama_info():
     多摩地域の観光情報や混雑度を詳しく魅力的に表示
     東京都オープンデータを活用した情報提供
     """
+    # デフォルトのイベントデータを定義
+    default_event_data = {
+        "seasonal_events": [
+            {"month": datetime.datetime.now().month, "event": "🌸 多摩地域の季節イベント", "crowd_level": 3, 
+             "description": "四季折々の素敵なイベントが開催されています"}
+        ],
+        "popular_spots": [
+            {
+                "name": "🏔️ 高尾山",
+                "category": "自然・絶景",
+                "avg_crowd": 3.5,
+                "best_time": "平日午前"
+            },
+            {
+                "name": "🎀 サンリオピューロランド",
+                "category": "テーマパーク",
+                "avg_crowd": 4.0,
+                "best_time": "平日"
+            }
+        ],
+        "hidden_gems": [],
+        "gourmet_spots": []
+    }
+    
     try:
+        # JSONファイルが存在しない場合は作成
+        if not os.path.exists(EVENT_DATA_FILE):
+            setup_files()
+        
         with open(EVENT_DATA_FILE, 'r', encoding='utf-8') as f:
             event_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError, Exception) as e:
+        # エラーが発生した場合はデフォルトデータを使用
+        event_data = default_event_data
+        st.warning("観光情報の読み込みに失敗しました。デフォルト情報を表示しています。")
+    
+    current_month = datetime.datetime.now().month
+    
+    # タブで情報を整理
+    info_tab1, info_tab2, info_tab3, info_tab4 = st.tabs([
+        "📅 季節のイベント",
+        "📍 人気スポット", 
+        "💎 穴場スポット",
+        "🍽️ グルメ情報"
+    ])
+    
+    with info_tab1:
+        # 今月のイベント情報を取得
+        monthly_events = [e for e in event_data.get('seasonal_events', []) if e.get('month') == current_month]
         
-        current_month = datetime.datetime.now().month
+        if monthly_events:
+            st.markdown("### 🎊 今月のおすすめイベント")
+            for event in monthly_events:
+                crowd_level = event.get('crowd_level', 3)
+                crowd_text = ['空いている', '普通', 'やや混雑', '混雑', '非常に混雑'][min(crowd_level - 1, 4)]
+                crowd_class = ['low', 'low', 'medium', 'high', 'high'][min(crowd_level - 1, 4)]
+                
+                st.markdown(f"""
+                <div class="event-card">
+                    <strong style="font-size: 1.2rem;">{event.get('event', 'イベント')}</strong><br>
+                    <p style="margin: 0.5rem 0;">{event.get('description', '')}</p>
+                    混雑予想: <span class="crowd-indicator crowd-{crowd_class}">{crowd_text}</span>
+                </div>
+                """, unsafe_allow_html=True)
         
-        # タブで情報を整理
-        info_tab1, info_tab2, info_tab3, info_tab4 = st.tabs([
-            "📅 季節のイベント",
-            "📍 人気スポット",
-            "💎 穴場スポット",
-            "🍽️ グルメ情報"
-        ])
+        # 年間イベントカレンダー
+        st.markdown("### 📆 年間イベントカレンダー")
+        other_events = [e for e in event_data.get('seasonal_events', []) if e.get('month') != current_month]
         
-        with info_tab1:
-            # 今月のイベント情報を取得
-            monthly_events = [e for e in event_data['seasonal_events'] if e['month'] == current_month]
-            
-            if monthly_events:
-                st.markdown("### 🎊 今月のおすすめイベント")
-                for event in monthly_events:
-                    crowd_level = event['crowd_level']
-                    crowd_text = ['空いている', '普通', 'やや混雑', '混雑', '非常に混雑'][crowd_level - 1]
-                    crowd_class = ['low', 'low', 'medium', 'high', 'high'][crowd_level - 1]
-                    
-                    st.markdown(f"""
-                    <div class="event-card">
-                        <strong style="font-size: 1.2rem;">{event['event']}</strong><br>
-                        <p style="margin: 0.5rem 0;">{event.get('description', '')}</p>
-                        混雑予想: <span class="crowd-indicator crowd-{crowd_class}">{crowd_text}</span>
-                    </div>
-                    """, unsafe_allow_html=True)
-            
-            # 年間イベントカレンダー
-            st.markdown("### 📆 年間イベントカレンダー")
-            other_events = [e for e in event_data['seasonal_events'] if e['month'] != current_month]
-            
+        if other_events:
             cols = st.columns(2)
             for idx, event in enumerate(other_events[:4]):
                 with cols[idx % 2]:
-                    st.info(f"**{event['month']}月** {event['event']}")
+                    st.info(f"**{event.get('month', '?')}月** {event.get('event', 'イベント')}")
         
         with info_tab2:
             st.markdown("### 🌟 多摩地域の人気デートスポット")
             
-            for spot in event_data['popular_spots']:
-                crowd_level = spot['avg_crowd']
+            for spot in event_data.get('popular_spots', []):
+                crowd_level = spot.get('avg_crowd', 3.0)
                 crowd_class = 'low' if crowd_level < 2.5 else 'medium' if crowd_level < 3.5 else 'high'
+                
+                # 各フィールドの存在チェック
+                name = spot.get('name', '名称不明')
+                category = spot.get('category', 'その他')
+                highlight = spot.get('highlight', '素敵なスポットです')
+                instagram_spots = spot.get('instagram_spots', ['フォトスポット多数'])
+                date_point = spot.get('date_point', '二人で楽しめます')
+                best_time = spot.get('best_time', '終日')
                 
                 st.markdown(f"""
                 <div class="spot-card">
-                    <div class="spot-title">{spot['name']}</div>
-                    <span class="spot-category">{spot['category']}</span>
-                    <p><strong>✨ ここがすごい！</strong><br>{spot['highlight']}</p>
-                    <p><strong>📸 インスタ映えスポット:</strong><br>{"、".join(spot['instagram_spots'])}</p>
-                    <p><strong>💕 デートポイント:</strong><br>{spot['date_point']}</p>
+                    <div class="spot-title">{name}</div>
+                    <span class="spot-category">{category}</span>
+                    <p><strong>✨ ここがすごい！</strong><br>{highlight}</p>
+                    <p><strong>📸 インスタ映えスポット:</strong><br>{"、".join(instagram_spots)}</p>
+                    <p><strong>💕 デートポイント:</strong><br>{date_point}</p>
                     <p>
                         <strong>混雑度:</strong> 
                         <span class="crowd-indicator crowd-{crowd_class}">
                             {'★' * int(crowd_level)}{'☆' * (5 - int(crowd_level))}
                         </span><br>
-                        <small>💡 おすすめ時間: {spot['best_time']}</small>
+                        <small>💡 おすすめ時間: {best_time}</small>
                     </p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -602,29 +652,34 @@ def show_tama_info():
         with info_tab3:
             st.markdown("### 💎 地元民おすすめ！穴場スポット")
             
-            for gem in event_data['hidden_gems']:
+            for gem in event_data.get('hidden_gems', []):
+                name = gem.get('name', '名称不明')
+                description = gem.get('description', '詳細情報なし')
+                access = gem.get('access', 'アクセス情報なし')
+                
                 st.markdown(f"""
                 <div class="info-card">
-                    <strong style="font-size: 1.1rem;">{gem['name']}</strong><br>
-                    <p>{gem['description']}</p>
-                    <small>📍 アクセス: {gem['access']}</small>
+                    <strong style="font-size: 1.1rem;">{name}</strong><br>
+                    <p>{description}</p>
+                    <small>📍 アクセス: {access}</small>
                 </div>
                 """, unsafe_allow_html=True)
         
         with info_tab4:
             st.markdown("### 🍽️ 多摩グルメマップ")
             
-            for gourmet in event_data['gourmet_spots']:
+            for gourmet in event_data.get('gourmet_spots', []):
+                name = gourmet.get('name', '名称不明')
+                description = gourmet.get('description', '詳細情報なし')
+                recommended = gourmet.get('recommended', 'おすすめ店舗情報なし')
+                
                 st.markdown(f"""
                 <div class="info-card">
-                    <strong style="font-size: 1.1rem;">{gourmet['name']}</strong><br>
-                    <p>{gourmet['description']}</p>
-                    <p><strong>おすすめ店:</strong> {gourmet['recommended']}</p>
+                    <strong style="font-size: 1.1rem;">{name}</strong><br>
+                    <p>{description}</p>
+                    <p><strong>おすすめ店:</strong> {recommended}</p>
                 </div>
                 """, unsafe_allow_html=True)
-                
-    except FileNotFoundError:
-        st.info("多摩地域の情報を読み込んでいます...")
 
 # --- 動物の絵文字マッピング ---
 ANIMAL_EMOJI_MAP = {
@@ -674,8 +729,14 @@ def assign_groups_and_routes(users_df, routes_df):
         original_index = users_df[users_df['name'] == row['name']].index[0]
         users_df.loc[original_index, 'group_id'] = (i % num_groups) + 1
     
-    # ルート割り当て
-    unique_routes = routes_df['周遊ルートNo.'].unique().tolist()
+    # ルート割り当て - 周遊ルートNo.の型を統一
+    try:
+        # 周遊ルートNo.を数値型に変換
+        routes_df['周遊ルートNo.'] = pd.to_numeric(routes_df['周遊ルートNo.'], errors='coerce')
+        unique_routes = routes_df['周遊ルートNo.'].dropna().unique().tolist()
+    except:
+        unique_routes = [1, 2, 3, 4, 5]  # フォールバック
+    
     random.shuffle(unique_routes)
     
     if not unique_routes:
@@ -722,27 +783,41 @@ def show_user_stats():
     """
     登録ユーザーの統計情報を表示（ダッシュボード機能）
     """
-    users_df = pd.read_csv(USER_DATA_FILE)
-    if len(users_df) > 0:
+    try:
+        users_df = pd.read_csv(USER_DATA_FILE)
+        if len(users_df) > 0:
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                st.metric("👥 登録者数", f"{len(users_df)}名")
+            
+            with col2:
+                male_count = len(users_df[users_df['gender'] == '男性'])
+                female_count = len(users_df[users_df['gender'] == '女性'])
+                st.metric("⚖️ 男女比", f"{male_count}:{female_count}")
+            
+            with col3:
+                avg_groups = users_df['group_id'].nunique()
+                st.metric("👫 グループ数", f"{avg_groups}組")
+            
+            with col4:
+                # 人気の動物キャラクター
+                if 'animal' in users_df.columns and not users_df['animal'].empty:
+                    popular_animal = users_df['animal'].mode().iloc[0] if len(users_df['animal'].mode()) > 0 else "未定"
+                    st.metric("🏆 人気キャラ", popular_animal)
+                else:
+                    st.metric("🏆 人気キャラ", "未定")
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        # ファイルが存在しない場合は初期値を表示
         col1, col2, col3, col4 = st.columns(4)
-        
         with col1:
-            st.metric("👥 登録者数", f"{len(users_df)}名")
-        
+            st.metric("👥 登録者数", "0名")
         with col2:
-            male_count = len(users_df[users_df['gender'] == '男性'])
-            female_count = len(users_df[users_df['gender'] == '女性'])
-            st.metric("⚖️ 男女比", f"{male_count}:{female_count}")
-        
+            st.metric("⚖️ 男女比", "0:0")
         with col3:
-            avg_groups = users_df['group_id'].nunique()
-            st.metric("👫 グループ数", f"{avg_groups}組")
-        
+            st.metric("👫 グループ数", "0組")
         with col4:
-            # 人気の動物キャラクター
-            if 'animal' in users_df.columns:
-                popular_animal = users_df['animal'].mode().iloc[0] if not users_df['animal'].empty else "未定"
-                st.metric("🏆 人気キャラ", popular_animal)
+            st.metric("🏆 人気キャラ", "未定")
 
 # --- Streamlit アプリ本体 ---
 def main():
@@ -825,7 +900,14 @@ def main():
             else:
                 try:
                     # キャラクター情報読み込み
-                    char_df = pd.read_csv(CHAR_INFO_FILE)
+                    try:
+                        char_df = pd.read_csv(CHAR_INFO_FILE)
+                    except:
+                        # ファイルが読み込めない場合はデフォルトデータを作成
+                        char_df = pd.DataFrame({
+                            '動物': ['コアラ', 'ライオン', 'チーター', 'オラウータン'],
+                            'キャラクター名': ['きんとき', 'ナナ', 'カロリーナ', 'キーボー']
+                        })
                     
                     # 動物キャラクター割り当て
                     animal = assign_animal(char_df)
@@ -844,8 +926,12 @@ def main():
                     }])
                     
                     # 既存データと結合
-                    users_df = pd.read_csv(USER_DATA_FILE)
-                    if name in users_df['name'].values:
+                    try:
+                        users_df = pd.read_csv(USER_DATA_FILE)
+                    except:
+                        users_df = pd.DataFrame()
+                    
+                    if not users_df.empty and name in users_df['name'].values:
                         st.error("⚠️ そのニックネームは既に使用されています。")
                     else:
                         updated_users_df = pd.concat([users_df, new_user], ignore_index=True)
@@ -880,35 +966,56 @@ def main():
         col1, col2 = st.columns([3, 1])
         with col1:
             if st.button("🎲 最新の参加者でグループとルートを編成する", use_container_width=True):
-                users_df = pd.read_csv(USER_DATA_FILE)
-                routes_df = pd.read_csv(ROUTE_DATA_FILE)
-                
-                if len(users_df) > 0:
-                    users_with_groups_df = assign_groups_and_routes(users_df, routes_df)
-                    users_with_groups_df.to_csv(USER_DATA_FILE, index=False)
-                    st.success("✅ グループ編成と周遊ルートの作成が完了しました！")
-                else:
-                    st.warning("⚠️ まだ参加者が登録されていません。")
+                try:
+                    users_df = pd.read_csv(USER_DATA_FILE)
+                    routes_df = pd.read_csv(ROUTE_DATA_FILE)
+                    
+                    if len(users_df) > 0:
+                        users_with_groups_df = assign_groups_and_routes(users_df, routes_df)
+                        users_with_groups_df.to_csv(USER_DATA_FILE, index=False)
+                        st.success("✅ グループ編成と周遊ルートの作成が完了しました！")
+                    else:
+                        st.warning("⚠️ まだ参加者が登録されていません。")
+                except FileNotFoundError as e:
+                    st.error(f"⚠️ 必要なファイルが見つかりません: {e}")
+                except Exception as e:
+                    st.error(f"⚠️ エラーが発生しました: {e}")
         
         with col2:
             if st.button("📊 グループ再編成", use_container_width=True):
                 st.info("現在の登録者で再度グループを編成します。")
         
         # 既存のグループ情報を表示
-        users_df = pd.read_csv(USER_DATA_FILE)
-        routes_df = pd.read_csv(ROUTE_DATA_FILE)
-        
-        if len(users_df) > 0 and users_df['group_id'].max() > 0:
-            st.markdown("---")
-            st.markdown("### 📋 現在のグループ編成")
+        try:
+            users_df = pd.read_csv(USER_DATA_FILE)
+            routes_df = pd.read_csv(ROUTE_DATA_FILE)
             
-            num_groups = int(users_df['group_id'].max())
-            
-            for group_id in range(1, num_groups + 1):
-                group_members = users_df[users_df['group_id'] == group_id]
+            if len(users_df) > 0 and users_df['group_id'].max() > 0:
+                st.markdown("---")
+                st.markdown("### 📋 現在のグループ編成")
                 
-                if len(group_members) > 0:
-                    with st.expander(f"**📍 グループ {group_id}** - {len(group_members)}名", expanded=False):
+                num_groups = int(users_df['group_id'].max())
+                
+                # 全グループの情報を表示
+                for group_id in range(1, num_groups + 1):
+                    group_members = users_df[users_df['group_id'] == group_id]
+                    
+                    if len(group_members) > 0:
+                        # グループタイトルに人数とルート名を表示
+                        route_no = group_members['route_no'].iloc[0]
+                        try:
+                            route_no_int = int(float(route_no)) if not pd.isna(route_no) else 1
+                            routes_df_copy = routes_df.copy()
+                            routes_df_copy['周遊ルートNo.'] = pd.to_numeric(routes_df_copy['周遊ルートNo.'], errors='coerce')
+                            route_info = routes_df_copy[routes_df_copy['周遊ルートNo.'] == route_no_int]
+                            if not route_info.empty:
+                                route_name = route_info['コース名'].iloc[0]
+                            else:
+                                route_name = "ルート未定"
+                        except:
+                            route_name = "ルート未定"
+                        
+                        with st.expander(f"**📍 グループ {group_id}** - {len(group_members)}名 - {route_name}", expanded=False):
                         # メンバー表示
                         st.markdown("### 👥 メンバー")
                         for _, member in group_members.iterrows():
@@ -928,122 +1035,148 @@ def main():
                         st.markdown("### 🗺️ 周遊プラン")
                         assigned_route_no = group_members['route_no'].iloc[0]
                         
-                        # ルート番号を整数に変換
+                        # ルート番号を整数に変換（エラーハンドリング付き）
                         try:
-                            assigned_route_no = int(float(assigned_route_no))
-                        except:
+                            if pd.isna(assigned_route_no):
+                                assigned_route_no = 1
+                            else:
+                                assigned_route_no = int(float(assigned_route_no))
+                        except (ValueError, TypeError):
                             assigned_route_no = 1
                         
-                        route_info = routes_df[routes_df['周遊ルートNo.'] == assigned_route_no]
+                        # 周遊ルートNo.カラムの型を統一
+                        routes_df_copy = routes_df.copy()
+                        routes_df_copy['周遊ルートNo.'] = pd.to_numeric(routes_df_copy['周遊ルートNo.'], errors='coerce')
+                        
+                        # ルート情報を取得
+                        route_info = routes_df_copy[routes_df_copy['周遊ルートNo.'] == assigned_route_no]
                         
                         if not route_info.empty:
                             route_details = route_info.iloc[0]
                             
+                            # 各フィールドの存在チェック
+                            course_name = route_details.get('コース名', '名称不明')
+                            duration = route_details.get('所要時間', '未定')
+                            price = route_details.get('参加費', '未定')
+                            start_time = route_details.get('時間', '未定')
+                            schedule = route_details.get('行程・内容', '詳細未定')
+                            point = route_details.get('交流ポイント', '楽しく交流しましょう')
+                            transport = route_details.get('交通・費用', '詳細はお問い合わせください')
+                            
                             st.markdown(f"""
                             <div class="route-card">
                                 <div class="route-header">
-                                    <span class="route-title">📋 {route_details['コース名']}</span>
+                                    <span class="route-title">📋 {course_name}</span>
                                 </div>
                                 <div class="route-details">
                                     <div class="route-detail-item">
                                         <strong>⏱️ 所要時間</strong><br>
-                                        {route_details['所要時間']}
+                                        {duration}
                                     </div>
                                     <div class="route-detail-item">
                                         <strong>💰 参加費</strong><br>
-                                        {route_details['参加費']}
+                                        {price}
                                     </div>
                                     <div class="route-detail-item">
                                         <strong>🕐 開始時間</strong><br>
-                                        {route_details['時間']}
+                                        {start_time}
                                     </div>
                                 </div>
                                 <div style="margin-top: 1rem;">
-                                    <p><strong>📍 行程:</strong> {route_details['行程・内容']}</p>
-                                    <p><strong>💕 交流ポイント:</strong> {route_details['交流ポイント']}</p>
-                                    <p><small>※ {route_details['交通・費用']}</small></p>
+                                    <p><strong>📍 行程:</strong> {schedule}</p>
+                                    <p><strong>💕 交流ポイント:</strong> {point}</p>
+                                    <p><small>※ {transport}</small></p>
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
                         else:
                             st.warning(f"ルートNo.{assigned_route_no} の詳細が見つかりません。")
-        else:
-            st.info("📝 まだグループが編成されていません。参加者登録後、グループ編成ボタンを押してください。")
+            else:
+                st.info("📝 まだグループが編成されていません。参加者登録後、グループ編成ボタンを押してください。")
+        
+        except FileNotFoundError:
+            st.warning("⚠️ データファイルが見つかりません。「事前登録」タブから始めてください。")
+        except Exception as e:
+            st.error(f"⚠️ データの読み込みエラー: {e}")
     
     # --- Tab3: 当日用チャット ---
     with tab3:
         st.markdown("## 💬 AIアシスタントチャット")
         st.info("街コンでの会話に困ったら、アシスタントに相談してみましょう！")
         
-        users_df = pd.read_csv(USER_DATA_FILE)
-        
-        if len(users_df) > 0:
-            user_name = st.selectbox(
-                "あなたのニックネームを選択してください",
-                options=[''] + users_df['name'].unique().tolist(),
-                format_func=lambda x: "選択してください..." if x == '' else x
-            )
+        try:
+            users_df = pd.read_csv(USER_DATA_FILE)
             
-            if user_name and user_name != '':
-                user_info = users_df[users_df['name'] == user_name].iloc[0]
-                user_animal = user_info['animal']
+            if len(users_df) > 0:
+                user_name = st.selectbox(
+                    "あなたのニックネームを選択してください",
+                    options=[''] + users_df['name'].unique().tolist(),
+                    format_func=lambda x: "選択してください..." if x == '' else x
+                )
                 
-                # ユーザー情報表示
-                col1, col2 = st.columns([1, 3])
-                with col1:
-                    animal_emoji = get_animal_emoji(user_animal)
-                    st.markdown(f"""
-                    <div class="animal-card" style="padding: 1rem;">
-                        <div style="font-size: 3rem;">{animal_emoji}</div>
-                        <strong>{user_name}さん</strong><br>
-                        <small>{user_animal}</small>
-                    </div>
-                    """, unsafe_allow_html=True)
-                
-                with col2:
-                    # チャット履歴の初期化
-                    if "messages" not in st.session_state:
-                        st.session_state.messages = []
-                        # ウェルカムメッセージ
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": f"こんにちは、{user_name}さん！🎉\n街コンアシスタントです。何でも気軽に相談してくださいね！"
-                        })
+                if user_name and user_name != '':
+                    user_info = users_df[users_df['name'] == user_name].iloc[0]
+                    user_animal = user_info['animal']
                     
-                    # チャット履歴表示
-                    for message in st.session_state.messages:
-                        with st.chat_message(message["role"]):
-                            st.write(message["content"])
+                    # ユーザー情報表示
+                    col1, col2 = st.columns([1, 3])
+                    with col1:
+                        animal_emoji = get_animal_emoji(user_animal)
+                        st.markdown(f"""
+                        <div class="animal-card" style="padding: 1rem;">
+                            <div style="font-size: 3rem;">{animal_emoji}</div>
+                            <strong>{user_name}さん</strong><br>
+                            <small>{user_animal}</small>
+                        </div>
+                        """, unsafe_allow_html=True)
                     
-                    # ユーザー入力
-                    if prompt := st.chat_input("メッセージを入力..."):
-                        # ユーザーメッセージを追加
-                        st.session_state.messages.append({"role": "user", "content": prompt})
-                        with st.chat_message("user"):
-                            st.write(prompt)
+                    with col2:
+                        # チャット履歴の初期化
+                        if "messages" not in st.session_state:
+                            st.session_state.messages = []
+                            # ウェルカムメッセージ
+                            st.session_state.messages.append({
+                                "role": "assistant",
+                                "content": f"こんにちは、{user_name}さん！🎉\n街コンアシスタントです。何でも気軽に相談してくださいね！"
+                            })
                         
-                        # アシスタントの応答
-                        response = get_assistant_response(prompt)
-                        st.session_state.messages.append({"role": "assistant", "content": response})
-                        with st.chat_message("assistant"):
-                            st.write(response)
-                
-                # クイックアクション
-                st.markdown("### 💡 クイックヘルプ")
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    if st.button("😰 緊張してます"):
-                        response = get_assistant_response("緊張")
-                        st.info(response)
-                with col2:
-                    if st.button("🗣️ 話題に困った"):
-                        response = get_assistant_response("話")
-                        st.info(response)
-                with col3:
-                    if st.button("📍 おすすめスポット"):
-                        response = get_assistant_response("おすすめ")
-                        st.info(response)
-        else:
+                        # チャット履歴表示
+                        for message in st.session_state.messages:
+                            with st.chat_message(message["role"]):
+                                st.write(message["content"])
+                        
+                        # ユーザー入力
+                        if prompt := st.chat_input("メッセージを入力..."):
+                            # ユーザーメッセージを追加
+                            st.session_state.messages.append({"role": "user", "content": prompt})
+                            with st.chat_message("user"):
+                                st.write(prompt)
+                            
+                            # アシスタントの応答
+                            response = get_assistant_response(prompt)
+                            st.session_state.messages.append({"role": "assistant", "content": response})
+                            with st.chat_message("assistant"):
+                                st.write(response)
+                    
+                    # クイックアクション
+                    st.markdown("### 💡 クイックヘルプ")
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        if st.button("😰 緊張してます"):
+                            response = get_assistant_response("緊張")
+                            st.info(response)
+                    with col2:
+                        if st.button("🗣️ 話題に困った"):
+                            response = get_assistant_response("話")
+                            st.info(response)
+                    with col3:
+                        if st.button("📍 おすすめスポット"):
+                            response = get_assistant_response("おすすめ")
+                            st.info(response)
+            else:
+                st.warning("⚠️ 利用するには、まず「事前登録」タブでユーザーを登録してください。")
+        
+        except (FileNotFoundError, pd.errors.EmptyDataError):
             st.warning("⚠️ 利用するには、まず「事前登録」タブでユーザーを登録してください。")
     
     # --- Tab4: 多摩地域情報 ---
